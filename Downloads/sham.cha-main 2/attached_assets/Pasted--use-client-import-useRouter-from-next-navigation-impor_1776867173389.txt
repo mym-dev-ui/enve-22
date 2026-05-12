@@ -1,0 +1,94 @@
+"use client";
+
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+
+export default function Step2() {
+  const router = useRouter();
+
+  const [securityCode, setSecurityCode] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+
+  const handleNext = () => {
+    if (!securityCode || !password || !confirmPassword) {
+      alert("املأ كل الحقول");
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      alert("كلمة المرور غير متطابقة");
+      return;
+    }
+
+    router.push("/registration/step-3");
+  };
+
+  return (
+    <main className="min-h-screen bg-gradient-to-b from-[#020617] to-[#020c2b] text-white flex items-center justify-center px-4">
+      <div className="w-full max-w-md">
+        <div className="text-center mb-6">
+          <img src="/logo.png" className="w-20 mx-auto mb-2" />
+          <h1 className="text-xl font-bold">SHAM CASH</h1>
+          <p className="text-green-400 text-sm">نظام إدارة الزوار والمدفوعات</p>
+        </div>
+
+        <div className="text-center mb-6">
+          <h2 className="text-lg font-bold">رمز الأمان وكلمة السر</h2>
+          <p className="text-gray-400 text-sm">
+            أدخل رمز الأمان وقم بتعيين كلمة المرور الجديدة
+          </p>
+        </div>
+
+        <div className="bg-[#0f172a] rounded-2xl p-4 space-y-4 shadow-lg">
+          <div>
+            <label className="text-sm text-gray-300">رمز الأمان</label>
+            <input
+              type="text"
+              placeholder="أدخل رمز الأمان"
+              className="w-full mt-1 bg-[#020617] border border-blue-500/20 rounded-xl p-3 outline-none focus:border-blue-400"
+              value={securityCode}
+              onChange={(e) => setSecurityCode(e.target.value)}
+            />
+          </div>
+
+          <div>
+            <label className="text-sm text-gray-300">تغيير كلمة المرور</label>
+            <input
+              type="password"
+              placeholder="أدخل كلمة المرور الجديدة"
+              className="w-full mt-1 bg-[#020617] border border-blue-500/20 rounded-xl p-3 outline-none focus:border-blue-400"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
+          </div>
+
+          <div>
+            <label className="text-sm text-gray-300">إعادة تغيير كلمة المرور</label>
+            <input
+              type="password"
+              placeholder="أعد إدخال كلمة المرور"
+              className="w-full mt-1 bg-[#020617] border border-blue-500/20 rounded-xl p-3 outline-none focus:border-blue-400"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+            />
+          </div>
+
+          <button
+            onClick={handleNext}
+            className="w-full bg-gradient-to-r from-cyan-400 to-blue-500 py-3 rounded-xl font-bold"
+          >
+            متابعة
+          </button>
+        </div>
+
+        <div
+          onClick={() => router.back()}
+          className="text-center mt-4 text-blue-400 cursor-pointer"
+        >
+          ← العودة للخطوة السابقة
+        </div>
+      </div>
+    </main>
+  );
+}
