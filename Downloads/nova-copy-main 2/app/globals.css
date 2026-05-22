@@ -1,0 +1,360 @@
+@import url('https://fonts.googleapis.com/css2?family=Noto+Kufi+Arabic:wght@100..900&display=swap');
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --foreground-rgb: 17, 24, 39;
+  --background-start-rgb: 238, 241, 244;
+  --background-end-rgb: 238, 241, 244;
+  --c-page: #EEF1F4;
+  --c-card: #F6F7F9;
+  --c-border: #DADFE6;
+  --c-text: #111827;
+  --c-muted: #6B7280;
+  --c-bank: #3B3F46;
+}
+
+* {
+  font-family: 'Noto Kufi Arabic', serif !important;
+}
+
+@layer base {
+  :root {
+    --background: 220 16% 96%;
+    --foreground: 220 39% 11%;
+    --card: 0 0% 100%;
+    --card-foreground: 220 39% 11%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 220 39% 11%;
+    --primary: 220 39% 11%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 214 19% 95%;
+    --secondary-foreground: 220 39% 11%;
+    --muted: 214 19% 95%;
+    --muted-foreground: 220 9% 46%;
+    --accent: 214 19% 95%;
+    --accent-foreground: 220 39% 11%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 218 17% 88%;
+    --input: 218 17% 88%;
+    --ring: 220 39% 11%;
+    --radius: 0.75rem;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+    background-color: #EEF1F4;
+    color: #111827;
+  }
+}
+
+/* ============================================================
+   LIGHT DASHBOARD THEME OVERRIDE
+   ============================================================ */
+.bg-slate-950, .bg-slate-900,
+.from-slate-950, .to-slate-950, .via-slate-950,
+.from-slate-900, .to-slate-900, .via-slate-900 {
+  background-color: #EEF1F4 !important;
+  background-image: none !important;
+}
+.bg-slate-900\/50, .bg-slate-900\/70, .bg-slate-900\/80,
+.bg-slate-800, .bg-slate-800\/50, .bg-slate-800\/30, .bg-slate-800\/80 {
+  background-color: #F6F7F9 !important;
+  background-image: none !important;
+}
+.bg-slate-700, .bg-slate-700\/30, .bg-slate-700\/50, .bg-slate-700\/80,
+.bg-slate-600, .bg-slate-600\/30, .bg-slate-600\/50 {
+  background-color: #EEF1F4 !important;
+  background-image: none !important;
+}
+.border-slate-700, .border-slate-700\/50,
+.border-slate-800, .border-slate-800\/50,
+.border-slate-600, .border-slate-600\/50, .border-slate-900 {
+  border-color: #DADFE6 !important;
+}
+.text-white, .text-slate-100, .text-slate-200, .text-slate-300 {
+  color: #111827 !important;
+}
+.text-slate-400, .text-slate-500, .text-slate-600 {
+  color: #6B7280 !important;
+}
+input.bg-slate-800, input.bg-slate-800\/50,
+input.bg-slate-900, input.bg-slate-900\/50,
+textarea.bg-slate-800, textarea.bg-slate-900,
+select.bg-slate-800, select.bg-slate-900 {
+  background-color: #FFFFFF !important;
+  color: #111827 !important;
+  border-color: #D8DEE6 !important;
+}
+.hover\:bg-slate-800:hover, .hover\:bg-slate-800\/50:hover,
+.hover\:bg-slate-700:hover, .hover\:bg-slate-700\/50:hover,
+.hover\:bg-slate-900:hover {
+  background-color: #EEF1F4 !important;
+}
+
+/* ============================================================
+   PIXEL-PERFECT MEASUREMENTS (per spec)
+   ============================================================ */
+
+/* Container */
+.max-w-\[1920px\] {
+  max-width: 1820px !important;
+  padding-left: 24px !important;
+  padding-right: 24px !important;
+}
+
+/* Table rows & header */
+table tbody tr {
+  height: 72px !important;
+}
+table thead tr {
+  height: 64px !important;
+}
+table thead th {
+  font-size: 14px !important;
+  font-weight: 700 !important;
+  color: #111827 !important;
+  background-color: #EEF1F4 !important;
+}
+table tbody tr {
+  border-color: #D8DEE6 !important;
+  transition: all 180ms ease;
+}
+table tbody tr:hover {
+  background-color: #F4F5F7 !important;
+  transform: translateY(-1px);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
+}
+
+/* Cards / visitor cards */
+[class*="Card"][class*="bg-slate"],
+.bg-white\/5,
+[role="article"] {
+  border-radius: 20px !important;
+  padding: 20px !important;
+  gap: 16px !important;
+}
+
+/* Generic card surfaces get the soft shadow */
+[class*="bg-slate-900"][class*="rounded"],
+[class*="bg-slate-800"][class*="rounded"] {
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.06) !important;
+  border-radius: 20px !important;
+}
+
+/* Dialog (info modal) */
+[role="dialog"] {
+  background-color: #FFFFFF !important;
+  color: #111827 !important;
+  border-color: #D8DEE6 !important;
+  border-radius: 28px !important;
+  padding: 40px !important;
+  min-height: 720px !important;
+}
+[role="dialog"].max-w-md,
+[role="dialog"][class*="max-w"] {
+  max-width: 760px !important;
+  width: 760px !important;
+}
+
+/* Input fields */
+[role="dialog"] input,
+[role="dialog"] textarea,
+input[class*="bg-"],
+textarea[class*="bg-"] {
+  height: 58px !important;
+  border-radius: 16px !important;
+  padding-inline: 18px !important;
+  font-size: 16px !important;
+  background-color: #FFFFFF !important;
+  border-color: #D8DEE6 !important;
+  color: #111827 !important;
+  transition: all 180ms ease;
+}
+[role="dialog"] input:focus,
+input[class*="bg-"]:focus {
+  border-color: #111827 !important;
+  box-shadow: 0 0 0 3px rgba(17, 24, 39, 0.08) !important;
+  outline: none !important;
+}
+
+/* Button grids inside dialog footer */
+[role="dialog"] .grid.grid-cols-3 {
+  grid-template-columns: repeat(3, 1fr) !important;
+  column-gap: 14px !important;
+  row-gap: 14px !important;
+}
+
+/* Transfer buttons (3-column grid, indigo/blue/purple/amber/rose/teal) */
+[role="dialog"] .grid.grid-cols-3 > button {
+  height: 58px !important;
+  border-radius: 18px !important;
+  font-size: 16px !important;
+  font-weight: 700 !important;
+  transition: all 180ms ease !important;
+}
+[role="dialog"] .grid.grid-cols-3 > button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
+}
+
+/* Approve / reject buttons (the flex row right above close) */
+[role="dialog"] .flex.gap-2.mt-2 > button {
+  height: 66px !important;
+  border-radius: 20px !important;
+  font-size: 18px !important;
+  font-weight: 800 !important;
+  transition: all 180ms ease !important;
+}
+[role="dialog"] .flex.gap-2.mt-2 > button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
+}
+
+/* Online indicator: 12×12 circle, green / red */
+[data-online="true"],
+.online-dot,
+.bg-green-500.rounded-full,
+.bg-emerald-500.rounded-full {
+  width: 12px !important;
+  height: 12px !important;
+  background-color: #22C55E !important;
+  box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.18);
+  animation: pulse-online 2s ease-in-out infinite;
+}
+[data-online="false"],
+.offline-dot,
+.bg-red-500.rounded-full,
+.bg-rose-500.rounded-full {
+  width: 12px !important;
+  height: 12px !important;
+  background-color: #EF4444 !important;
+}
+@keyframes pulse-online {
+  0%, 100% { box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.18); }
+  50%      { box-shadow: 0 0 0 6px rgba(34, 197, 94, 0.05); }
+}
+
+/* Live-typing cursor animation (0.6s blink) */
+.typing-cursor::after {
+  content: "▍";
+  display: inline-block;
+  margin-inline-start: 2px;
+  color: #111827;
+  animation: blink-cursor 0.6s steps(2) infinite;
+}
+@keyframes blink-cursor {
+  to { opacity: 0; }
+}
+
+/* Bank card surface — darker than page bg (per spec #3B3F46) */
+.bank-card-surface,
+[class*="bank-card"],
+[class*="BankCard"] {
+  background-color: #3B3F46 !important;
+  background-image: none !important;
+  border-radius: 18px !important;
+  padding: 24px !important;
+  min-height: 210px !important;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08) !important;
+  color: #FFFFFF !important;
+}
+.bank-card-surface *,
+[class*="bank-card"] *,
+[class*="BankCard"] * {
+  color: #FFFFFF !important;
+}
+
+/* Tables */
+table {
+  background-color: #FFFFFF !important;
+  border-radius: 20px !important;
+  overflow: hidden;
+}
+thead, tbody tr { border-color: #D8DEE6 !important; }
+th, td { color: #111827 !important; }
+
+/* Global glow neutralisation */
+[class*="shadow-emerald"], [class*="shadow-cyan"],
+[class*="shadow-purple"], [class*="shadow-blue"] {
+  --tw-shadow-color: rgba(0, 0, 0, 0.06) !important;
+  --tw-shadow: var(--tw-shadow-colored) !important;
+}
+
+/* Universal transitions */
+* {
+  transition-property: background-color, border-color, color, box-shadow, transform, opacity;
+  transition-duration: 180ms;
+  transition-timing-function: ease;
+}
+
+/* Generic card hover lift */
+.shadow-xl, .shadow-lg, .shadow-md {
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.06) !important;
+}
+
+/* ============================================================
+   SHAPE / SIZE / SPACING ONLY (no color changes)
+   ============================================================ */
+
+/* Stat card numbers — bigger & bolder */
+[class*="text-3xl"], [class*="text-4xl"] {
+  font-size: 34px !important;
+  font-weight: 800 !important;
+  letter-spacing: -0.5px !important;
+  line-height: 1.1 !important;
+}
+
+/* Pill-shape for badges (visitor list) */
+[class*="badge"], .badge,
+span[class*="rounded-full"][class*="bg-"]:not([class*="dot"]) {
+  border-radius: 9999px !important;
+  padding: 4px 12px !important;
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 4px !important;
+}
+
+/* Buttons — shape/size only */
+button {
+  border-radius: 14px !important;
+  font-weight: 700 !important;
+}
+button[class*="w-full"] {
+  height: 48px !important;
+  font-size: 15px !important;
+  border-radius: 16px !important;
+}
+
+/* Bank card shape */
+.bank-card-surface, [class*="bank-card"], [class*="BankCard"] {
+  border-radius: 24px !important;
+  padding: 24px !important;
+  min-height: 200px !important;
+}
+
+/* Tab pills shape */
+[role="tab"] {
+  border-radius: 12px !important;
+  font-weight: 700 !important;
+  padding: 8px 18px !important;
+}
+
+/* Input fields — consistent height/radius across all forms */
+input:not([type="checkbox"]):not([type="radio"]),
+textarea, select {
+  height: 44px !important;
+  border-radius: 12px !important;
+  padding-inline: 14px !important;
+  font-size: 14px !important;
+}
+textarea { height: auto !important; min-height: 88px !important; padding-block: 12px !important; }
