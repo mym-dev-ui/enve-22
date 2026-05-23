@@ -1,0 +1,68 @@
+12:07:00.204 Running build in Washington, D.C., USA (East) – iad1
+12:07:00.205 Build machine configuration: 2 cores, 8 GB
+12:07:00.215 Cloning github.com/mym-dev-ui/nova (Branch: main, Commit: 8939839)
+12:07:00.216 Skipping build cache, deployment was triggered without cache.
+12:07:00.456 Cloning completed: 240.000ms
+12:07:00.746 Running "vercel build"
+12:07:00.772 Vercel CLI 53.3.2
+12:07:00.990 Installing dependencies...
+12:07:03.582 npm warn deprecated rimraf@3.0.2: Rimraf versions prior to v4 are no longer supported
+12:07:04.029 npm warn deprecated inflight@1.0.6: This module is not supported, and leaks memory. Do not use it. Check out lru-cache if you want a good and tested way to coalesce async requests by a key value, which is much more comprehensive and powerful.
+12:07:04.139 npm warn deprecated glob@7.1.7: Glob versions prior to v9 are no longer supported
+12:07:05.221 npm warn deprecated @humanwhocodes/config-array@0.11.14: Use @eslint/config-array instead
+12:07:05.398 npm warn deprecated @humanwhocodes/object-schema@2.0.3: Use @eslint/object-schema instead
+12:07:08.761 npm warn deprecated eslint@8.49.0: This version is no longer supported. Please see https://eslint.org/version-support for other options.
+12:07:15.483 
+12:07:15.484 added 529 packages in 14s
+12:07:15.485 
+12:07:15.485 149 packages are looking for funding
+12:07:15.486   run `npm fund` for details
+12:07:15.536 Detected Next.js version: 13.5.1
+12:07:15.544 Running "npm run build"
+12:07:15.657 
+12:07:15.657 > nextjs@0.1.0 build
+12:07:15.658 > next build
+12:07:15.658 
+12:07:16.081 Attention: Next.js now collects completely anonymous telemetry regarding usage.
+12:07:16.082 This information is used to shape Next.js' roadmap and prioritize features.
+12:07:16.082 You can learn more, including how to opt-out if you'd not like to participate in this anonymous program, by visiting the following URL:
+12:07:16.082 https://nextjs.org/telemetry
+12:07:16.082 
+12:07:16.175    Creating an optimized production build...
+12:07:30.678 Failed to compile.
+12:07:30.679 
+12:07:30.679 ./app/notifications/page.tsx
+12:07:30.680 Error: 
+12:07:30.680   x Expression expected
+12:07:30.680       ,-[/vercel/path0/app/notifications/page.tsx:1627:1]
+12:07:30.680  1627 |   const approvedTrend = [1, 2, 4, 3, 5, 7, 6];
+12:07:30.681  1628 | 
+12:07:30.681  1629 |   return (
+12:07:30.681  1630 |     <>
+12:07:30.681       :      ^
+12:07:30.682  1631 |       <div
+12:07:30.682  1632 |         dir="rtl"
+12:07:30.682  1633 |         className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-white"
+12:07:30.683       `----
+12:07:30.683 
+12:07:30.683   x Expected ',', got '{'
+12:07:30.683       ,-[/vercel/path0/app/notifications/page.tsx:2177:1]
+12:07:30.683  2177 |         </div>
+12:07:30.684  2178 |       </div>
+12:07:30.684  2179 | 
+12:07:30.684  2180 |       {/* Info Dialog */}
+12:07:30.684       :       ^
+12:07:30.684  2181 |       <Dialog open={selectedInfo !== null} onOpenChange={closeDialog}>
+12:07:30.685  2182 |         <DialogContent
+12:07:30.685  2183 |           className="max-w-md bg-background rounded-xl shadow-lg p-6"
+12:07:30.685       `----
+12:07:30.685 
+12:07:30.685 Caused by:
+12:07:30.685     Syntax Error
+12:07:30.685 
+12:07:30.685 Import trace for requested module:
+12:07:30.686 ./app/notifications/page.tsx
+12:07:30.686 
+12:07:30.686 
+12:07:30.686 > Build failed because of webpack errors
+12:07:31.277 Error: Command "npm run build" exited with 1

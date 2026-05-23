@@ -1,0 +1,68 @@
+uploads = []
+generated = []
+
+[[outputs]]
+id = "JGXDrHsc9TPeZjzBg0mA1"
+uri = "file://attached_assets/nova-patch/page.tsx.txt"
+type = "text"
+title = "page.tsx لـ nova (انسخ وألصق بدل app/notifications/page.tsx)"
+
+[[outputs]]
+id = "7c57k7f-1frE8S4CSeeoD"
+uri = "file://attached_assets/nova-patch/page-tsx.tar.gz"
+type = "unspecified"
+title = "نفس الملف مضغوطًا"
+
+[[outputs]]
+id = "OawXQLu3rDKxzP2rnhLVs"
+uri = "file://attached_assets/nova-patch/nova-auth-patch.tar.gz"
+type = "unspecified"
+title = "حزمة تعديلات auth لـ nova (4 ملفات)"
+
+[[outputs]]
+id = "jg2a1fVuIRSAhEsvmcy40"
+uri = "file://attached_assets/nova-patch/root-page.tsx.txt"
+type = "text"
+title = "app/page.tsx (صفحة الدخول الرئيسية)"
+
+[[outputs]]
+id = "m-LFWx4-DcS8u0OqK1UY7"
+uri = "file://attached_assets/nova-patch/login-page.tsx.txt"
+type = "text"
+title = "app/login/page.tsx"
+
+[[outputs]]
+id = "kFZu1Eo9gvo1coD9bM62B"
+uri = "file://attached_assets/nova-patch/notifications-page.tsx.txt"
+type = "text"
+title = "app/notifications/page.tsx (النسخة النهائية - استبدلي الملف بالكامل)"
+
+[[outputs]]
+id = "MoFBvraqBB5kIEiwvRtH9"
+uri = "file://attached_assets/nova-patch/old-page.tsx.txt"
+type = "text"
+title = "app/old/page.tsx"
+
+[[outputs]]
+id = "NLomIuvLZCoInoFwsqFbr"
+uri = "file://attached_assets/nova-patch/notifications-page-FIX.tar.gz"
+type = "unspecified"
+title = "notifications-page-FIX.tar.gz (فكّي الضغط وارفعي page.tsx)"
+
+[[outputs]]
+id = "gZvWaoXrKjkM_Nla38_Uq"
+uri = "file://attached_assets/nova-patch/nova-2-sounds.tar.gz"
+type = "unspecified"
+title = "nova-2-sounds.tar.gz (صوتين فقط باللوحة + ملفات الصوت)"
+
+[[outputs]]
+id = "-fL_G33rwzAiWn-INzRdT"
+uri = "file://attached_assets/nova-sounds-patch.tar.gz"
+type = "unspecified"
+title = "nova-sounds-patch.tar.gz — تعديل الأصوات فقط"
+
+[[outputs]]
+id = "DlICKSLKLJXcLEdIy4tSl"
+uri = "file://attached_assets/nova-fix-patch.tar.gz"
+type = "unspecified"
+title = "nova-fix-patch.tar.gz — كل الإصلاحات (6 ملفات)"

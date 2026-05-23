@@ -1,0 +1,31 @@
+kind = "web"
+previewPath = "/"
+title = "نظام التسجيل ولوحة التحكم"
+version = "1.0.0"
+id = "artifacts/registration-app"
+router = "path"
+
+[[integratedSkills]]
+name = "react-vite"
+version = "1.0.0"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 24693
+
+[services.development]
+run = "pnpm --filter @workspace/registration-app run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/registration-app", "run", "build" ]
+publicDir = "artifacts/registration-app/dist/public"
+serve = "static"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "24693"
+BASE_PATH = "/"

